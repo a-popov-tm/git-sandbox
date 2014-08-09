@@ -6,7 +6,7 @@ cd git-sandbox
 sudo make install
 
 # Одной командой
-(cd /tmp && git clone https://github.com/studiofact/git-sandbox.git && cd git-extras && sudo make install)
+(cd /tmp && git clone https://github.com/studiofact/git-sandbox.git && cd git-sandbox && sudo make install)
 ```
 
 ### Структура проектов
