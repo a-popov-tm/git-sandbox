@@ -10,4 +10,5 @@ if [ $EUID -ne 0 ]; then
 fi
 
 a2dissite /etc/apache2/sites-available/test.conf
+rm /etc/apache2/sites-available/test.conf
 service apache2 reload
