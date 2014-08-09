@@ -1,4 +1,4 @@
-### Установка
+## Установка
 ``` bash
 cd /tmp
 git clone https://github.com/studiofact/git-sandbox.git
@@ -9,7 +9,7 @@ sudo make install
 (cd /tmp && git clone https://github.com/studiofact/git-sandbox.git && cd git-sandbox && sudo make install)
 ```
 
-### Структура проектов
+## Структура проектов
 
 ``` code
 /home
@@ -33,7 +33,7 @@ sudo make install
         /httpdocs
 ```
 
-### Наименование виртуальных хостов
+## Наименование виртуальных хостов
 
 - Проект `http://project.host.domain`
 - Песочницы `http://user.project.host.domain`
