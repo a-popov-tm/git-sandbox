@@ -8,3 +8,28 @@ if [ $EUID -ne 0 ]; then
   echo "This script should be run as root." > /dev/stderr
   exit 1
 fi
+
+PROJECT_NAME="$1"
+SANDBOX_USER="$2"
+SANDBOX_PATH=$(echo "/home/$SANDBOX_USER/www/$PROJECT_NAME")
+
+if [ "$PROJECT_NAME" == '' ] || [ "$SANDBOX_USER" == '' ]; then
+  read -p "Enter project name and press [ENTER]: " PROJECT_NAME
+  read -p "Enter sandbox user and press [ENTER]: " SANDBOX_USER
+fi
+
+if [ -d "/home/dev/$PROJECT_NAME" ]; then
+  echo "Project '$PROJECT_NAME' not exists."
+  exit 1
+fi
+
+if [ -d "$SANDBOX_PATH" ]; then
+  echo "In sandox $SANDBOX_USER project '$PROJECT_NAME' alredy exists."
+  exit 1
+fi
+
+mkdir -p "$SANDBOX_PATH/$PROJECT_NAME"
+mkdir -p "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
+
+ln -s "/home/dev/$PROJECT_NAME/bitrix" "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
+ln -s "/home/dev/$PROJECT_NAME/upload" "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
