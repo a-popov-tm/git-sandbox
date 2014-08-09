@@ -53,3 +53,7 @@ create_vhost() {
 </VirtualHost>
 _EOF_
 }
+
+create_vhost > /etc/apache2/sites-available/test.conf
+a2ensite /etc/apache2/sites-available/test.conf
+service apache2 reload
