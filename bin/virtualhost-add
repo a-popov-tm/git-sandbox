@@ -11,6 +11,23 @@ if [ $EUID -ne 0 ]; then
   exit 1
 fi
 
+# Show usage
+usage() {
+  cat <<- _EOF_
+Create a new virtualhost
+Example run shell: virtualhost-add -n=name -u=user -t=project
+
+  -d, --domain   Domain prefix. Default: $VHOST_DOMAIN_PREFIX
+  -c, --charset  Encoding site. Default: $VHOST_ENCODING
+  -p, --port     Port vhost. Default: $VHOST_PORT
+  -t, --type     Type vhost - sandbox or project. !Required!
+  -n, --name     Name vhost. !Required!
+  -u, --user     User project or sandobx. !Required!
+  -h, --help     Help - show this menu.
+_EOF_
+  exit 1
+}
+
 # Output virtualhost structure
 # To be outputted into new file
 create_vhost() {
@@ -23,8 +40,8 @@ create_vhost() {
   # match this virtual host. For the default virtual host (this file) this
   # value is not decisive as it is used as a last resort host regardless.
   # However, you must set it for any further virtual host explicitly.
-  #ServerName www.example.com
 
+  ServerName www.example.com
   ServerAdmin webmaster@localhost
   DocumentRoot /var/www/html
 
@@ -56,6 +73,30 @@ create_vhost() {
 _EOF_
 }
 
-create_vhost > /etc/apache2/sites-available/test.conf
-a2ensite /etc/apache2/sites-available/test.conf
-service apache2 reload
+VHOST_DIR="/etc/apache2/sites-available"
+VHOST_DOMAIN_PREFIX="$DOMAIN"
+VHOST_ENCODING="$ENCODING_SITE"
+VHOST_PORT="80"
+VHOST_TYPE=
+VHOST_NAME=
+VHOST_USER=
+
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  usage
+fi
+
+for i in "$@"; do
+  case ${i} in
+    -d=*|--domain=*) VHOST_DOMAIN_PREFIX="${i#*=}" ;;
+    -c=*|--charset=*) VHOST_ENCODING="${i#*=}" ;;
+    -p=*|--port=*) VHOST_PORT="${i#*=}" ;;
+    -t=*|--type=*) VHOST_TYPE="${i#*=}" ;;
+    -n=*|--name) VHOST_NAME="${i#*=}" ;;
+    -u=*|--user) VHOST_USER="${i#*=}" ;;
+    *) usage ;;
+  esac
+done
+
+#create_vhost > /etc/apache2/sites-available/test.conf
+#a2ensite /etc/apache2/sites-available/test.conf
+#service apache2 reload
