@@ -67,8 +67,8 @@ create_vhost() {
   # after it has been globally disabled with "a2disconf".
   #Include conf-available/serve-cgi-bin.conf
 
-  php_admin_value mbstring.func_overload 2
-  php_admin_value mbstring.internal_encoding UTF-8
+  php_admin_value mbstring.func_overload $MBSTRING_FUNC_OVERLOAD
+  php_admin_value mbstring.internal_encoding $MBSTRING_INTERNAL_ENCODING
 </VirtualHost>
 _EOF_
 }
@@ -88,14 +88,26 @@ fi
 for i in "$@"; do
   case ${i} in
     -d=*|--domain=*) VHOST_DOMAIN_PREFIX="${i#*=}" ;;
-    -c=*|--charset=*) VHOST_ENCODING="${i#*=}" ;;
+    -c=*|--charset=*) VHOST_ENCODING=$(echo "${i#*=}" | tr '[:lower:]' '[:upper:]') ;;
     -p=*|--port=*) VHOST_PORT="${i#*=}" ;;
-    -t=*|--type=*) VHOST_TYPE="${i#*=}" ;;
+    -t=*|--type=*) VHOST_TYPE=$(echo "${i#*=}" | awk '{print tolower($0)}') ;;
     -n=*|--name) VHOST_NAME="${i#*=}" ;;
     -u=*|--user) VHOST_USER="${i#*=}" ;;
     *) usage ;;
   esac
 done
+
+MBSTRING_FUNC_OVERLOAD=0
+MBSTRING_INTERNAL_ENCODING=
+if [ "$VHOST_ENCODING" == "UTF8" ] || [ "$VHOST_ENCODING" == "UTF-8" ]; then
+  MBSTRING_FUNC_OVERLOAD=2
+  MBSTRING_INTERNAL_ENCODING="UTF-8"
+fi
+
+if [ "$VHOST_TYPE" != "sandbox" ] || [ "$VHOST_TYPE" == "project" ]; then
+  echo -e "Invalid -t argument, usage --help."
+  exit 1
+fi
 
 #create_vhost > /etc/apache2/sites-available/test.conf
 #a2ensite /etc/apache2/sites-available/test.conf
