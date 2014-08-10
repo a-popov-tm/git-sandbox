@@ -4,6 +4,8 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
+. "/etc/git-sandbox.conf"
+
 if [ $EUID -ne 0 ]; then
   echo "This script should be run as root." > /dev/stderr
   exit 1
@@ -31,5 +33,8 @@ fi
 mkdir -p "$SANDBOX_PATH/$PROJECT_NAME"
 mkdir -p "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
 
-ln -s "/home/dev/$PROJECT_NAME/bitrix" "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
-ln -s "/home/dev/$PROJECT_NAME/upload" "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
+ln -s "/home/$PROJECT_USER/$PROJECT_NAME/bitrix" "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
+ln -s "/home/$PROJECT_USER/$PROJECT_NAME/upload" "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
+
+chown -R "$SANDBOX_USER:$PROJECT_GROUP" "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"
+chmod -R g+rwx "$SANDBOX_PATH/$PROJECT_NAME/httpdocs"

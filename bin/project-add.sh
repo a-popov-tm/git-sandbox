@@ -4,14 +4,15 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
+. "/etc/git-sandbox.conf"
+
 if [ $EUID -ne 0 ]; then
   echo "This script should be run as root." > /dev/stderr
   exit 1
 fi
 
-PROJECT_USER="dev"
-PROJECT_PATH="/home/$PROJECT_USER"
 PROJECT_NAME="$1"
+PROJECT_PATH="/home/$PROJECT_USER"
 PROJECT_PATH_FULL=$(echo "$PROJECT_PATH/$PROJECT_NAME")
 
 URL_BITRIXSETUP="http://www.1c-bitrix.ru/download/scripts/bitrixsetup.php"
@@ -28,8 +29,8 @@ fi
 
 mkdir -p ${PROJECT_PATH_FULL}
 
-wget ${URL_BITRIXSETUP} -P ${PROJECT_PATH_FULL}
-wget ${URL_BITRIXRESTOR} -P ${PROJECT_PATH_FULL}
+wget -qO /dev/null ${URL_BITRIXSETUP} -P ${PROJECT_PATH_FULL}
+wget -qO /dev/null ${URL_BITRIXRESTOR} -P ${PROJECT_PATH_FULL}
 
-chown -R "$PROJECT_USER:$PROJECT_USER" ${PROJECT_PATH_FULL}
+chown -R "$PROJECT_USER:$PROJECT_GROUP" ${PROJECT_PATH_FULL}
 chmod -R g+rwx ${PROJECT_PATH_FULL}

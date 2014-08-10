@@ -4,6 +4,8 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
+. "/etc/git-sandbox.conf"
+
 if [ $EUID -ne 0 ]; then
   echo "This script should be run as root." > /dev/stderr
   exit 1
