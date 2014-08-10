@@ -9,6 +9,8 @@ BINS = $(wildcard bin/*)
 install:
 	@mkdir -p $(DESTDIR)$(BINPREFIX)
 	@$(foreach BIN, $(BINS), cp -f $(BIN) $(DESTDIR)$(BINPREFIX);)
+	@cp -f etc/git-sandbox.conf $(DESTDIR)/etc/git-sandbox.conf
 
 uninstall:
 	@$(foreach BIN, $(BINS), rm -f $(DESTDIR)$(BINPREFIX)/$(notdir $(BIN));)
+	@rm -f $(DESTDIR)/etc/git-sandbox.conf
