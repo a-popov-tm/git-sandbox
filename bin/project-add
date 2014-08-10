@@ -4,7 +4,7 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
-. "/etc/git-sandbox.conf"
+source "/etc/git-sandbox.conf"
 
 if [ $EUID -ne 0 ]; then
   echo "This script should be run as root." > /dev/stderr
@@ -27,10 +27,8 @@ if [ -d ${PROJECT_PATH_FULL} ]; then
   exit 1
 fi
 
-mkdir -p ${PROJECT_PATH_FULL}
-
-wget -qO /dev/null ${URL_BITRIXSETUP} -P ${PROJECT_PATH_FULL}
-wget -qO /dev/null ${URL_BITRIXRESTOR} -P ${PROJECT_PATH_FULL}
-
-chown -R "${PROJECT_USER}:${PROJECT_GROUP}" ${PROJECT_PATH_FULL}
-chmod -R g+rwx ${PROJECT_PATH_FULL}
+mkdir -p ${PROJECT_PATH_FULL} \
+  && wget -qO /dev/null ${URL_BITRIXSETUP} -P ${PROJECT_PATH_FULL} \
+  && wget -qO /dev/null ${URL_BITRIXRESTOR} -P ${PROJECT_PATH_FULL} \
+  && chown -R "${PROJECT_USER}:${PROJECT_GROUP}" ${PROJECT_PATH_FULL} \
+  && chmod -R g+rwx ${PROJECT_PATH_FULL}
