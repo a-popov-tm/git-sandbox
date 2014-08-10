@@ -9,6 +9,17 @@ sudo make install
 (cd /tmp && git clone https://github.com/studiofact/git-sandbox.git && cd git-sandbox && sudo make install)
 ```
 
+## Список утилит
+
+- `project-add`
+- `project-remove`
+- `sandbox-add`
+- `sandbox-remove`
+- `user-add`
+- `user-remove`
+- `virtualhost-add`
+- `virtualhost-remove`
+
 ## Структура проектов
 
 ``` code
