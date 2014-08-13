@@ -9,7 +9,27 @@ if [ $EUID -ne 0 ]; then
   exit 1
 fi
 
-USER_NAME=$1
+# Show usage
+usage() {
+  cat <<- _EOF_
+Delete user
+Example run shell: Delete user -f username
+  -f, --full     Delete user's home folder 
+	-h, --help     Help - show this menu.
+_EOF_
+  exit 1
+}
+
+FULL_DELL=
+USER_NAME=
+
+for i in "$@"; do
+  case ${i} in
+    -f=|--full=) FULL_DELL="1" ;;
+    -h=|--help=) usage; exit 1 ;;
+    *)  USER_NAME="${i#*=}";;
+  esac
+done
 
 if [ "$USER_NAME" == '' ]; then
   read -p "Enter name and press [ENTER]: " USER_NAME
@@ -21,7 +41,12 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-deluser --remove-home ${USER_NAME}
+if [ -z FULL_DELL ]; then
+ deluser --remove-home ${USER_NAME}
+else
+	deluser ${USER_NAME}
+fi
+
 if [ $? == 0 ]; then
   echo "User '$USER_NAME' has been deleted."
 else

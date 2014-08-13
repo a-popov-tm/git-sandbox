@@ -4,6 +4,8 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
+source "/etc/git-sandbox.conf"
+
 if [ $EUID -ne 0 ]; then
   echo "This script should be run as root." > /dev/stderr
   exit 1
@@ -28,5 +30,15 @@ if [ $? == 0 ]; then
   echo "User '$USER_NAME' has been added."
 else
   echo "Failed to add a user."
+	exit 1
 fi
+
+usermod -g ${PROJECT_GROUP} ${USER_NAME}
+if [ $? == 0 ]; then
+  echo "User '$USER_NAME' has been added to ${PROJECT_GROUP} group."
+else
+  echo "Failed to add a user to ${PROJECT_GROUP} group."
+	exit 1
+fi
+
 
