@@ -4,7 +4,7 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
-source "/etc/git-sandbox.conf"
+source "/etc/git-sandbox/config.conf"
 
 if [ $EUID -ne 0 ]; then
   echo "This script should be run as root." > /dev/stderr
@@ -119,6 +119,11 @@ if [ "$VHOST_TYPE" == "project" ]; then
   VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/${VHOST_NAME}"
   VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/${VHOST_NAME}/httpdocs"
 elif [ "$VHOST_TYPE" == "sandbox" ]; then
+  if [ -z $VHOST_USER ]; then
+    echo -e "Invalid -u argument, usage --help"
+    exit 1
+  fi
+
   VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/www/${VHOST_NAME}"
   VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/www/${VHOST_NAME}/httpdocs"
 else
