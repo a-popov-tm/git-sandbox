@@ -45,7 +45,7 @@ if [ "${PROJECT_NAME}" == '' ] || [ "${SANDBOX_USER}" == '' ]; then
   read -p "Enter sandbox user and press [ENTER]: " SANDBOX_USER
 fi
 
-if [ -d "/home/dev/${PROJECT_NAME}" ]; then
+if [ ! -d "/home/dev/${PROJECT_NAME}" ]; then
   echo "Project '${PROJECT_NAME}' not exists."
   exit 1
 fi
@@ -58,17 +58,18 @@ fi
 mkdir -p "${SANDBOX_PATH}"
 mkdir -p "${SANDBOX_PATH}/httpdocs"
 
-if [ -z "${REMOTE_REP_ADRESS}"] then
-	CURRENT_DIR=pwd
-	cd "/home/${PROJECT_USER}/${PROJECT_NAME}/httpdocs"
-	STR=git remote -v ?"^origin"?
-	REMOTE_REP_ADRESS=`expr match "${STR}" '\<(https|ssh|git):\/\/[^ ]+\>'`
-	cd "${CURRENT_DIR}"
+
+
+if [ -z "${REMOTE_REP_ADRESS}"]; then
+	CURRENT_DIR=$(pwd)
+  cd "/home/${PROJECT_USER}/${PROJECT_NAME}/httpdocs"
+ 	REMOTE_REP_ADRESS=$(git remote -v | egrep -m 1 "^origin" | grep -oP "(https|ssh|git)://\S+") 	
+  cd "${CURRENT_DIR}"
 fi
 
-
-if [ -n "${REMOTE_REP_ADRESS" ]; then git clone ${REMOTE_REP_ADRESS} "${SANDBOX_PATH}/httpdocs" fi \
-|| echo "Error while clonning repository";
+if [ -n "${REMOTE_REP_ADRESS}" ]; then 
+  git clone "${REMOTE_REP_ADRESS}" "${SANDBOX_PATH}/httpdocs" || echo "Error while clonning repository"; 
+fi
 
 ln -s "/home/${PROJECT_USER}/${PROJECT_NAME}/httpdocs/bitrix" "${SANDBOX_PATH}/httpdocs/bitrix"
 ln -s "/home/${PROJECT_USER}/${PROJECT_NAME}/httpdocs/upload" "${SANDBOX_PATH}/httpdocs/upload"
