@@ -17,8 +17,16 @@ if [ "${PROJECT_NAME}" == '' ] || [ "${SANDBOX_USER}" == '' ]; then
   read -p "Enter sandbox user and press [ENTER]: " SANDBOX_USER
 fi
 
+IS_USER=$(grep "^${SANDBOX_USER}" '/etc/passwd');
+if [ -z "${IS_USER}" ]; then
+  echo "There is no such user"
+  exit 1;
+fi
+
 SANDBOX_PATH="/home/${SANDBOX_USER}/www/${PROJECT_NAME}"
 
 if [ -d "${SANDBOX_PATH}" ]; then
-  rm -rf "${SANDBOX_PATH}" 
+  rm -rf "${SANDBOX_PATH}"
+  rm -r "${SANDBOX_PATH}" 
 fi
+

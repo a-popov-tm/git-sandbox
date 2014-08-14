@@ -33,7 +33,7 @@ else
 	exit 1
 fi
 
-usermod -g ${PROJECT_GROUP} ${USER_NAME}
+usermod -G ${PROJECT_GROUP} ${USER_NAME}
 if [ $? == 0 ]; then
   echo "User '$USER_NAME' has been added to ${PROJECT_GROUP} group."
 else

@@ -26,10 +26,10 @@ delete_all ()
 {
 	PR_NAME="$1"	
 	for i in "$@"; do
-		if [ ${i} -eq 1]; then continue;
-		source "/etc/sandbox-remove" PR_NAME ${i}
+		if [ "${i}" == "${PR_NAME}" ]; then continue; fi	
+    sudo sandbox-remove "${PR_NAME}" "${i}"
 	done
 }
 
-PARAMS=`ls /home`
+PARAMS=$(ls /home)
 delete_all "${PROJECT_NAME}" "${PARAMS}"
