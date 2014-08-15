@@ -17,9 +17,9 @@ usage() {
 Create a new project
 Example run shell: project-add -n=name -g=remote_repos_adress
 
-  -n, --name     Name project. !Required!
-  -g, --git      Auto clone from remote repository.
-	-h, --help     Help - show this menu.
+  -n, --name  Name project. !Required!
+  -g, --git   Auto clone from remote repository.
+  -h, --help  Help - show this menu.
 _EOF_
   exit 1
 }
