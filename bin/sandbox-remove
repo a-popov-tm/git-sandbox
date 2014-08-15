@@ -26,7 +26,6 @@ fi
 SANDBOX_PATH="/home/${SANDBOX_USER}/www/${PROJECT_NAME}"
 
 if [ -d "${SANDBOX_PATH}" ]; then
-  rm -rf "${SANDBOX_PATH}"
-  rm -r "${SANDBOX_PATH}" 
+  rm -rf "${SANDBOX_PATH}" 
 fi
 

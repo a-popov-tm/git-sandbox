@@ -30,7 +30,7 @@ if [ $? == 0 ]; then
   echo "User '$USER_NAME' has been added."
 else
   echo "Failed to add a user."
-	exit 1
+  exit 1
 fi
 
 usermod -G ${PROJECT_GROUP} ${USER_NAME}
@@ -38,7 +38,5 @@ if [ $? == 0 ]; then
   echo "User '$USER_NAME' has been added to ${PROJECT_GROUP} group."
 else
   echo "Failed to add a user to ${PROJECT_GROUP} group."
-	exit 1
+  exit 1
 fi
-
-

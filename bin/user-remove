@@ -25,7 +25,7 @@ USER_NAME=
 
 for i in "$@"; do
   case ${i} in
-    -f|--full) FULL_DELL="1" ;;
+  -f|--full) FULL_DELL="1" ;;
     -h|--help) usage; exit 1 ;;
     *)  USER_NAME="${i#*=}";;
   esac
@@ -42,9 +42,9 @@ if [ $? != 0 ]; then
 fi
 
 if [ -n "${FULL_DELL}" ]; then
- deluser --remove-home ${USER_NAME}
+  deluser --remove-home ${USER_NAME}
 else
-	deluser ${USER_NAME}
+  deluser ${USER_NAME}
 fi
 
 if [ $? == 0 ]; then

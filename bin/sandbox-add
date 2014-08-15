@@ -32,7 +32,7 @@ REMOTE_REP_ADRESS=
 for i in "$@"; do
   case ${i} in
     -p=*|--project=*) PROJECT_NAME="${i#*=}" ;;
-		-u=*|--user=*) SANDBOX_USER="${i#*=}" ;;
+    -u=*|--user=*) SANDBOX_USER="${i#*=}" ;;
     -g=*|--git=*) REMOTE_REP_ADRESS="${i#*=}" ;; #default - project repository adress
     *) usage; exit 1 ;;
   esac
@@ -61,9 +61,9 @@ mkdir -p "${SANDBOX_PATH}/httpdocs"
 
 
 if [ -z "${REMOTE_REP_ADRESS}"]; then
-	CURRENT_DIR=$(pwd)
+  CURRENT_DIR=$(pwd)
   cd "/home/${PROJECT_USER}/${PROJECT_NAME}/httpdocs"
- 	REMOTE_REP_ADRESS=$(git remote -v | egrep -m 1 "^origin" | grep -oP "(https|ssh|git)://\S+") 	
+  REMOTE_REP_ADRESS=$(git remote -v | egrep -m 1 "^origin" | grep -oP "(https|ssh|git)://\S+") 	
   cd "${CURRENT_DIR}"
 fi
 

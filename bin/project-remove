@@ -24,11 +24,11 @@ fi
 
 delete_all ()
 {
-	PR_NAME="$1"	
-	for i in "$@"; do
-		if [ "${i}" == "${PR_NAME}" ]; then continue; fi	
-    sudo sandbox-remove "${PR_NAME}" "${i}"
-	done
+  PR_NAME="$1"	
+  for i in "$@"; do
+    if [ "${i}" == "${PR_NAME}" ]; then continue; fi	
+    sandbox-remove "${PR_NAME}" "${i}"
+  done
 }
 
 PARAMS=$(ls /home)
