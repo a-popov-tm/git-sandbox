@@ -11,9 +11,29 @@ if [ $EUID -ne 0 ]; then
   exit 1
 fi
 
-PROJECT_NAME="$1"
-PROJECT_PATH="/home/${PROJECT_USER}"
-PROJECT_PATH_FULL=$(echo "${PROJECT_PATH}/${PROJECT_NAME}/httpdocs")
+# Show usage
+usage() {
+  cat <<- _EOF_
+Create a new project
+Example run shell: project-add -n=name -g=remote_repos_adress
+
+  -n, --name     Name project. !Required!
+  -g, --git      Auto clone from remote repository.
+	-h, --help     Help - show this menu.
+_EOF_
+  exit 1
+}
+
+PROJECT_NAME=
+REMOTE_REP_ADRESS=
+
+for i in "$@"; do
+  case ${i} in
+    -n=*|--name=*) PROJECT_NAME="${i#*=}" ;;
+    -g=*|--git=*) REMOTE_REP_ADRESS="${i#*=}" ;;
+  *) usage; exit 1 ;;
+  esac
+done
 
 URL_BITRIXSETUP="http://www.1c-bitrix.ru/download/scripts/bitrixsetup.php"
 URL_BITRIXRESTOR="http://www.1c-bitrix.ru/download/scripts/restore.php"
@@ -22,13 +42,21 @@ if [ "${PROJECT_NAME}" == '' ]; then
   read -p "Enter name project and press [ENTER]: " PROJECT_NAME
 fi
 
-if [ -d ${PROJECT_PATH_FULL} ]; then
+PROJECT_PATH="/home/${PROJECT_USER}"
+PROJECT_PATH_FULL="${PROJECT_PATH}/${PROJECT_NAME}/httpdocs"
+
+if [ -d "${PROJECT_PATH_FULL}" ]; then
   echo "Project '${PROJECT_NAME}' already exists."
   exit 1
 fi
 
-mkdir -p ${PROJECT_PATH_FULL} \
-  && wget -qO /dev/null ${URL_BITRIXSETUP} -P ${PROJECT_PATH_FULL} \
-  && wget -qO /dev/null ${URL_BITRIXRESTOR} -P ${PROJECT_PATH_FULL} \
+mkdir -p "${PROJECT_PATH_FULL}" || (echo "Can not create project folder"; exit 1;)
+ 
+if [ -n "${REMOTE_REP_ADRESS}" ]; then 
+  git clone "${REMOTE_REP_ADRESS}" "${PROJECT_PATH_FULL}" || echo "Error while clonnig repository" 
+fi
+
+wget  -P ${PROJECT_PATH_FULL} -q ${URL_BITRIXSETUP} \
+  && wget  -P ${PROJECT_PATH_FULL} -q ${URL_BITRIXRESTOR} \
   && chown -R "${PROJECT_USER}:${PROJECT_GROUP}" ${PROJECT_PATH_FULL} \
   && chmod -R g+rwx ${PROJECT_PATH_FULL}

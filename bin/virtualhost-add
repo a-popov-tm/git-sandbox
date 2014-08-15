@@ -97,9 +97,9 @@ for i in "$@"; do
     -c=*|--charset=*) VHOST_ENCODING=$(echo "${i#*=}" | tr '[:lower:]' '[:upper:]') ;;
     -p=*|--port=*) VHOST_PORT="${i#*=}" ;;
     -t=*|--type=*) VHOST_TYPE=$(echo "${i#*=}" | awk '{print tolower($0)}') ;;
-    -n=*|--name) VHOST_NAME="${i#*=}" ;;
-    -u=*|--user) VHOST_USER="${i#*=}" ;;
-    *) usage ;;
+    -n=*|--name=*) VHOST_NAME="${i#*=}" ;;
+    -u=*|--user=*) VHOST_USER="${i#*=}" ;;
+    *) usage; exit 1 ;;
   esac
 done
 
