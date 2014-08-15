@@ -14,8 +14,8 @@ usage() {
   cat <<- _EOF_
 Delete user
 Example run shell: Delete user -f username
-  -f, --full     Delete user's home folder 
-	-h, --help     Help - show this menu.
+  -f, --full  Delete user's home folder
+  -h, --help  Help - show this menu.
 _EOF_
   exit 1
 }
