@@ -28,54 +28,6 @@ _EOF_
   exit 1
 }
 
-# Output virtualhost structure
-# To be outputted into new file
-create_vhost() {
-  cat <<- _EOF_
-<VirtualHost *:80>
-  # The ServerName directive sets the request scheme, hostname and port that
-  # the server uses to identify itself. This is used when creating
-  # redirection URLs. In the context of virtual hosts, the ServerName
-  # specifies what hostname must appear in the request's Host: header to
-  # match this virtual host. For the default virtual host (this file) this
-  # value is not decisive as it is used as a last resort host regardless.
-  # However, you must set it for any further virtual host explicitly.
-
-  ServerName ${VHOST_SERVER_NAME}
-  DocumentRoot ${VHOST_DOCUMENT_ROOT}
-
-  # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
-  # error, crit, alert, emerg.
-  # It is also possible to configure the loglevel for particular
-  # modules, e.g.
-  #LogLevel info ssl:warn
-
-  ErrorLog ${VHOST_APACHE_LOG_DIR}/error.log
-  CustomLog ${VHOST_APACHE_LOG_DIR}/access.log combined
-
-  <Directory ${VHOST_DOCUMENT_ROOT}>
-    Options -Indexes +FollowSymLinks +MultiViews
-    AllowOverride All
-    Require all granted
-  </Directory>
-
-  <IfModule mpm_itk_module>
-    AssignUserId ${VHOST_USER} ${PROJECT_GROUP}
-  </IfModule>
-
-  # For most configuration files from conf-available/, which are
-  # enabled or disabled at a global level, it is possible to
-  # include a line for only one particular virtual host. For example the
-  # following line enables the CGI configuration for this host only
-  # after it has been globally disabled with "a2disconf".
-  #Include conf-available/serve-cgi-bin.conf
-
-  php_admin_value mbstring.func_overload ${MBSTRING_FUNC_OVERLOAD}
-  php_admin_value mbstring.internal_encoding ${MBSTRING_INTERNAL_ENCODING}
-</VirtualHost>
-_EOF_
-}
-
 VHOST_DIR="/etc/apache2/sites-available"
 VHOST_DOMAIN_PREFIX="${DOMAIN}"
 VHOST_ENCODING="${ENCODING_SITE}"
@@ -192,11 +144,5 @@ if [ "$VHOST_TYPE" == "sandbox" ]; then
   sed -i "s/#USER_GROUP#/$VHOST_USER\ $PROJECT_GROUP/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
 fi
 
-service httpd restart
-service nginx restart
-
-
-
-create_vhost > "/etc/apache2/sites-available/${VHOST_SERVER_NAME}.conf"
-a2ensite "/etc/apache2/sites-available/${VHOST_SERVER_NAME}.conf"
-service apache2 reload
+#service httpd restart
+#service nginx restart
