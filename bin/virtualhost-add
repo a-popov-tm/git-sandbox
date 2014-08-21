@@ -96,6 +96,8 @@ elif [ "$VHOST_TYPE" == "sandbox" ]; then
 
   VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/www/${VHOST_NAME}"
   VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/www/${VHOST_NAME}/httpdocs"
+  VHOST_REPLACE_ROOT="\/home\/${VHOST_USER}\/www\/${VHOST_NAME}\/httpdocs"
+
 else
   echo -e "Invalid -t argument, usage --help."
   exit 1
@@ -120,22 +122,24 @@ PHPUPLOADTMPDIR="\/tmp\/php_upload\/$sitedir"
 chown -R "$VHOST_USER":"$PROJECT_GROUP" "$VHOST_DOCUMENT_ROOT"
 chmod -R 0770 "$VHOST_DOCUMENT_ROOT"
 
+mkdir /tmp/php_sessions/"$VHOST_SERVER_NAME"
 chown -R "$VHOST_USER":"$PROJECT_GROUP" /tmp/php_sessions/"$VHOST_SERVER_NAME"
 chmod -R 0770 /tmp/php_sessions/"$VHOST_SERVER_NAME"
 
+mkdir /tmp/php_upload/"$VHOST_SERVER_NAME"
 chown -R "$VHOST_USER":"$PROJECT_GROUP" /tmp/php_upload/"$VHOST_SERVER_NAME"
 chmod -R 0770 /tmp/php_upload/"$VHOST_SERVER_NAME"
 
 
 cp "$TEMPLATES_DIR"/"$VHOST_TYPE"/nginx/site_template.conf "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
 sed -i "s/#SERVER_NAME#/$VHOST_SERVER_NAME/g" "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
-sed -i "s/#SERVER_DIR#/$VHOST_DOCUMENT_ROOT/g" "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
+sed -i "s/#SERVER_DIR#/$VHOST_REPLACE_ROOT/g" "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
 sed -i "s/#SERVER_ENCODING#/$CHARSET/g" "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
 ln -sf "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf "$NGINX_CONF_DIR"/sandbox/site_enabled
 
 cp "$TEMPLATES_DIR"/"$VHOST_TYPE"/httpd/site_template.conf "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
 sed -i "s/#SERVER_NAME#/$VHOST_SERVER_NAME/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
-sed -i "s/#SERVER_DIR#/$VHOST_DOCUMENT_ROOT/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+sed -i "s/#SERVER_DIR#/$VHOST_REPLACE_ROOT/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
 sed -i "s/#PHP_OVERLOAD#/$PHPOVERLOAD/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
 sed -i "s/#PHP_INTERNAL#/$PHPINTERNAL/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
 sed -i "s/#PHP_SESSIONS#/php_admin_value session.save_path $PHPSESSIONSAVEPATH/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
