@@ -87,8 +87,8 @@ fi
 if [ "$VHOST_TYPE" == "project" ]; then
   VHOST_USER="${PROJECT_USER}"
   VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/${VHOST_NAME}"
-  VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/${VHOST_NAME}/httpdocs"
-  VHOST_REPLACE_ROOT="\/home\/$VHOST_USER\/$VHOST_NAME\/httpdocs"
+  VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/${VHOST_NAME}/projects/httpdocs"
+  VHOST_REPLACE_ROOT="\/home\/$VHOST_USER\/$VHOST_NAME\/projects\/httpdocs"
 elif [ "$VHOST_TYPE" == "sandbox" ]; then
   if [ -z $VHOST_USER ]; then
     echo -e "Invalid -u argument, usage --help"
@@ -119,9 +119,6 @@ fi
 PHPSESSIONSAVEPATH="\/tmp\/php_sessions\/$sitedir"
 PHPUPLOADTMPDIR="\/tmp\/php_upload\/$sitedir"
 
-chown -R "$VHOST_USER":"$PROJECT_GROUP" "$VHOST_DOCUMENT_ROOT"
-chmod -R 0770 "$VHOST_DOCUMENT_ROOT"
-
 mkdir /tmp/php_sessions/"$VHOST_SERVER_NAME"
 chown -R "$VHOST_USER":"$PROJECT_GROUP" /tmp/php_sessions/"$VHOST_SERVER_NAME"
 chmod -R 0770 /tmp/php_sessions/"$VHOST_SERVER_NAME"
@@ -148,5 +145,5 @@ if [ "$VHOST_TYPE" == "sandbox" ]; then
   sed -i "s/#USER_GROUP#/$VHOST_USER\ $PROJECT_GROUP/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
 fi
 
-#service httpd restart
-#service nginx restart
+service httpd restart
+service nginx restart

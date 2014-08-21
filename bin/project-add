@@ -42,7 +42,7 @@ if [ "${PROJECT_NAME}" == '' ]; then
   read -p "Enter name project and press [ENTER]: " PROJECT_NAME
 fi
 
-PROJECT_PATH="/home/${PROJECT_USER}"
+PROJECT_PATH="/home/${PROJECT_USER}/projects"
 PROJECT_PATH_FULL="${PROJECT_PATH}/${PROJECT_NAME}/httpdocs"
 
 if [ -d "${PROJECT_PATH_FULL}" ]; then
@@ -55,8 +55,14 @@ mkdir -p "${PROJECT_PATH_FULL}" || (echo "Can not create project folder"; exit 1
 if [ -n "${REMOTE_REP_ADRESS}" ]; then 
   git clone "${REMOTE_REP_ADRESS}" "${PROJECT_PATH_FULL}" || echo "Error while clonnig repository" 
 fi
+cp /etc/git-sandbox/vm.tar.gz ${PROJECT_PATH_FULL}
+cd ${PROJECT_PATH_FULL}
+tar -zxf vm.tar.gz
+rm -f vm.tar.gz
 
 wget  -P ${PROJECT_PATH_FULL} -q ${URL_BITRIXSETUP} \
   && wget  -P ${PROJECT_PATH_FULL} -q ${URL_BITRIXRESTOR} \
   && chown -R "${PROJECT_USER}:${PROJECT_GROUP}" ${PROJECT_PATH_FULL} \
   && chmod -R g+rwx ${PROJECT_PATH_FULL}
+
+#virtualhost-add -t=project -n=${PROJECT_NAME}
