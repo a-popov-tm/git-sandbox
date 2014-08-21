@@ -10,7 +10,7 @@ install:
 	@mkdir -p $(DESTDIR)$(BINPREFIX)
 	@$(foreach BIN, $(BINS), cp -f $(BIN) $(DESTDIR)$(BINPREFIX);)
 	@mkdir -p $(DESTDIR)/etc/git-sandbox
-	@cp -rf etc/git-sandbox $(DESTDIR)/etc/git-sandbox
+	@cp -rf etc/git-sandbox $(DESTDIR)/etc/
 
 uninstall:
 	@$(foreach BIN, $(BINS), rm -f $(DESTDIR)$(BINPREFIX)/$(notdir $(BIN));)
