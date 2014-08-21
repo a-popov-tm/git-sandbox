@@ -86,9 +86,9 @@ fi
 
 if [ "$VHOST_TYPE" == "project" ]; then
   VHOST_USER="${PROJECT_USER}"
-  VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/${VHOST_NAME}"
-  VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/${VHOST_NAME}/projects/httpdocs"
-  VHOST_REPLACE_ROOT="\/home\/$VHOST_USER\/$VHOST_NAME\/projects\/httpdocs"
+  VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/projects/${VHOST_NAME}"
+  VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/projects/${VHOST_NAME}/httpdocs"
+  VHOST_REPLACE_ROOT="\/home\/$VHOST_USER\/projects\/$VHOST_NAME\/httpdocs"
 elif [ "$VHOST_TYPE" == "sandbox" ]; then
   if [ -z $VHOST_USER ]; then
     echo -e "Invalid -u argument, usage --help"
