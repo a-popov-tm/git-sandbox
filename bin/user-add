@@ -4,7 +4,7 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
-source "/etc/git-sandbox.conf"
+source "/etc/git-sandbox/config.conf"
 
 if [ $EUID -ne 0 ]; then
   echo "This script should be run as root." > /dev/stderr
@@ -13,6 +13,7 @@ fi
 
 USER_NAME=$1
 USER_PASSWORD=$2
+USER_HOME="/home/${USER_NAME}"
 
 if [ "$USER_NAME" == '' ] || [ "$USER_PASSWORD" == '' ]; then
   read -p "Enter name and press [ENTER]: " USER_NAME
@@ -25,14 +26,16 @@ if [ $? -eq 0 ]; then
   exit 1
 fi
 
-useradd -m -p ${USER_PASSWORD} ${USER_NAME}
+useradd -m ${USER_NAME}
 if [ $? == 0 ]; then
+  echo ${USER_PASSWORD} | passwd ${USER_NAME} --stdin
+  mkdir "${USER_HOME}/www"
+  chown -R ${USER_NAME}:${PROJECT_GROUP} ${USER_HOME}
   echo "User '$USER_NAME' has been added."
 else
   echo "Failed to add a user."
   exit 1
 fi
-
 usermod -G ${PROJECT_GROUP} ${USER_NAME}
 if [ $? == 0 ]; then
   echo "User '$USER_NAME' has been added to ${PROJECT_GROUP} group."

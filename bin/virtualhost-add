@@ -22,58 +22,10 @@ Example run shell: virtualhost-add -n=name -u=user -t=project
   -p, --port     Port vhost. Default: ${VHOST_PORT}
   -t, --type     Type vhost - sandbox or project. !Required!
   -n, --name     Name vhost. !Required!
-  -u, --user     User project or sandobx. Required if type sandbox
+  -u, --user     User project or sandbox. Required if type sandbox
   -h, --help     Help - show this menu.
 _EOF_
   exit 1
-}
-
-# Output virtualhost structure
-# To be outputted into new file
-create_vhost() {
-  cat <<- _EOF_
-<VirtualHost *:80>
-  # The ServerName directive sets the request scheme, hostname and port that
-  # the server uses to identify itself. This is used when creating
-  # redirection URLs. In the context of virtual hosts, the ServerName
-  # specifies what hostname must appear in the request's Host: header to
-  # match this virtual host. For the default virtual host (this file) this
-  # value is not decisive as it is used as a last resort host regardless.
-  # However, you must set it for any further virtual host explicitly.
-
-  ServerName ${VHOST_SERVER_NAME}
-  DocumentRoot ${VHOST_DOCUMENT_ROOT}
-
-  # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
-  # error, crit, alert, emerg.
-  # It is also possible to configure the loglevel for particular
-  # modules, e.g.
-  #LogLevel info ssl:warn
-
-  ErrorLog ${VHOST_APACHE_LOG_DIR}/error.log
-  CustomLog ${VHOST_APACHE_LOG_DIR}/access.log combined
-
-  <Directory ${VHOST_DOCUMENT_ROOT}>
-    Options -Indexes +FollowSymLinks +MultiViews
-    AllowOverride All
-    Require all granted
-  </Directory>
-
-  <IfModule mpm_itk_module>
-    AssignUserId ${VHOST_USER} ${PROJECT_GROUP}
-  </IfModule>
-
-  # For most configuration files from conf-available/, which are
-  # enabled or disabled at a global level, it is possible to
-  # include a line for only one particular virtual host. For example the
-  # following line enables the CGI configuration for this host only
-  # after it has been globally disabled with "a2disconf".
-  #Include conf-available/serve-cgi-bin.conf
-
-  php_admin_value mbstring.func_overload ${MBSTRING_FUNC_OVERLOAD}
-  php_admin_value mbstring.internal_encoding ${MBSTRING_INTERNAL_ENCODING}
-</VirtualHost>
-_EOF_
 }
 
 VHOST_DIR="/etc/apache2/sites-available"
@@ -103,6 +55,24 @@ for i in "$@"; do
   esac
 done
 
+#
+# Some character settings
+#
+
+if [ "$VHOST_ENCODING" == "UTF8" ] || [ "$VHOST_ENCODING" == "UTF-8" ]; then
+  CHARACTER="DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci";
+  CHARSET="utf-8";
+  PHPOVERLOAD=" ";
+  PHPINTERNAL=" ";
+else
+  CHARACTER="DEFAULT CHARACTER SET cp1251 COLLATE cp1251_general_ci";
+  CHARSET="windows-1251";
+  PHPOVERLOAD="php_admin_value mbstring.func_overload 0";
+  PHPINTERNAL="php_admin_value mbstring.internal_encoding latin";
+fi
+
+
+
 MBSTRING_FUNC_OVERLOAD=0
 MBSTRING_INTERNAL_ENCODING=
 if [ "$VHOST_ENCODING" == "UTF8" ] || [ "$VHOST_ENCODING" == "UTF-8" ]; then
@@ -116,8 +86,9 @@ fi
 
 if [ "$VHOST_TYPE" == "project" ]; then
   VHOST_USER="${PROJECT_USER}"
-  VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/${VHOST_NAME}"
-  VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/${VHOST_NAME}/httpdocs"
+  VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/projects/${VHOST_NAME}"
+  VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/projects/${VHOST_NAME}/httpdocs"
+  VHOST_REPLACE_ROOT="\/home\/$VHOST_USER\/projects\/$VHOST_NAME\/httpdocs"
 elif [ "$VHOST_TYPE" == "sandbox" ]; then
   if [ -z $VHOST_USER ]; then
     echo -e "Invalid -u argument, usage --help"
@@ -126,6 +97,7 @@ elif [ "$VHOST_TYPE" == "sandbox" ]; then
 
   VHOST_APACHE_LOG_DIR="/home/${VHOST_USER}/www/${VHOST_NAME}"
   VHOST_DOCUMENT_ROOT="/home/${VHOST_USER}/www/${VHOST_NAME}/httpdocs"
+  VHOST_REPLACE_ROOT="\/home\/$VHOST_USER\/www\/$VHOST_NAME\/httpdocs"
 else
   echo -e "Invalid -t argument, usage --help."
   exit 1
@@ -144,7 +116,34 @@ VHOST_SERVER_NAME="$VHOST_NAME.$VHOST_DOMAIN_PREFIX"
 if [ "$VHOST_TYPE" == "sandbox" ]; then
   VHOST_SERVER_NAME="$VHOST_USER.$VHOST_SERVER_NAME"
 fi
+PHPSESSIONSAVEPATH="\/tmp\/php_sessions\/$sitedir"
+PHPUPLOADTMPDIR="\/tmp\/php_upload\/$sitedir"
 
-create_vhost > "/etc/apache2/sites-available/${VHOST_SERVER_NAME}.conf"
-a2ensite "/etc/apache2/sites-available/${VHOST_SERVER_NAME}.conf"
-service apache2 reload
+mkdir /tmp/php_sessions/"$VHOST_SERVER_NAME"
+chown -R "$VHOST_USER":"$PROJECT_GROUP" /tmp/php_sessions/"$VHOST_SERVER_NAME"
+chmod -R 0770 /tmp/php_sessions/"$VHOST_SERVER_NAME"
+
+mkdir /tmp/php_upload/"$VHOST_SERVER_NAME"
+chown -R "$VHOST_USER":"$PROJECT_GROUP" /tmp/php_upload/"$VHOST_SERVER_NAME"
+chmod -R 0770 /tmp/php_upload/"$VHOST_SERVER_NAME"
+
+
+cp "$TEMPLATES_DIR"/"$VHOST_TYPE"/nginx/site_template.conf "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
+sed -i "s/#SERVER_NAME#/$VHOST_SERVER_NAME/g" "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
+sed -i "s/#SERVER_DIR#/$VHOST_REPLACE_ROOT/g" "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
+sed -i "s/#SERVER_ENCODING#/$CHARSET/g" "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf
+ln -sf "$NGINX_CONF_DIR"/sandbox/site_avaliable/"$VHOST_SERVER_NAME".conf "$NGINX_CONF_DIR"/sandbox/site_enabled
+
+cp "$TEMPLATES_DIR"/"$VHOST_TYPE"/httpd/site_template.conf "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+sed -i "s/#SERVER_NAME#/$VHOST_SERVER_NAME/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+sed -i "s/#SERVER_DIR#/$VHOST_REPLACE_ROOT/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+sed -i "s/#PHP_OVERLOAD#/$PHPOVERLOAD/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+sed -i "s/#PHP_INTERNAL#/$PHPINTERNAL/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+sed -i "s/#PHP_SESSIONS#/php_admin_value session.save_path $PHPSESSIONSAVEPATH/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+sed -i "s/#PHP_UPLOAD#/php_admin_value upload_tmp_dir $PHPUPLOADTMPDIR/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+if [ "$VHOST_TYPE" == "sandbox" ]; then
+  sed -i "s/#USER_GROUP#/$VHOST_USER\ $PROJECT_GROUP/g" "$HTTPD_CONF_DIR"/sandbox/conf/"$VHOST_SERVER_NAME".conf
+fi
+
+service httpd restart
+service nginx restart
